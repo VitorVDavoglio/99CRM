@@ -6,6 +6,7 @@ function Rotas(){
     return <BrowserRouter>
         <Routes>
             <Route path="/dashboard" element={<Dashboard />}/>
+            <Route path="/" element={<Dashboard />}/>
             <Route path="/negocios" element={<Negocio />}/>
         </Routes>
     </BrowserRouter>

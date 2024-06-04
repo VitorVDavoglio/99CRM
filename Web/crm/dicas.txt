@@ -105,3 +105,12 @@ export default Rotas;
         - PROPS são dados que vem da página que foi chamada, parametros que passo para os componentes para fazer especificações em cada página
 
     Outra biblioteca utilizada nesse projeto é o npm install react-google-charts
+
+
+na parte de dinheiro colocar o modelo {new Intl.NumberFormat('pt-br', {style:'currency', currency:'BRL'}).format(VARIÁVEL)}
+
+instalaçaõ do pacote que ajuda a mosntar a lista na página de negócios => npm install react-data-table-component
+
+instalação do pacote para o botão de excluir fazer ação => npm install react-confirm-alert
+
+para editar a lista de negocios tem a biblioteca => npm install react-dock
