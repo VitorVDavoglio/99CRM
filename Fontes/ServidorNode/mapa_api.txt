@@ -1,0 +1,15 @@
+DashBoard - setor negocios
+    GET -> /dashboard/resumos
+        Retorno {
+            valor_mes
+            qtd_mes
+            valor_dia
+            qtd_dia
+        }
+
+DashBoard - grafico
+    GET -> /dashboard/negocios
+        Retorno{
+            [mes, valor],
+            [1,5000],
+        }

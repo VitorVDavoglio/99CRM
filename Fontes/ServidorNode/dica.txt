@@ -1,0 +1,6 @@
+primeiro comando com a pasta vazia -> npm init
+    npm install mysql
+    npm install express cors express-basic-auth
+
+
+quando digitar nodemon src/index.js e der erro precisa entrar no package.json e colocar "type": "module",
