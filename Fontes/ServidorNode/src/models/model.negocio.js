@@ -99,7 +99,7 @@ function Excluir(id_negocio, callback){
 
     db.getConnection(function(err, conn) {
 
-        db.beginTransaction(async function(err){
+        conn.beginTransaction(async function(err){
 
             try {
                 // Tarefas...
@@ -112,6 +112,7 @@ function Excluir(id_negocio, callback){
 
                 conn.commit();
                 callback(undefined, {id_negocio: id_negocio});
+
             } catch (e) {
                 conn.rollback();
                 callback(e, {});
