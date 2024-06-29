@@ -13,3 +13,8 @@ select{
     cursor: pointer;
     width: 100%;    
 }
+
+.no-data-found{
+    height: 450px;
+    padding-top: 220px;
+}

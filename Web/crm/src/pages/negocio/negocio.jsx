@@ -3,11 +3,18 @@ import Busca from "../../components/busca/busca.jsx";
 import NegocioCad from "../negocio-cad/negocio-cad.jsx";
 
 import DataTable from "react-data-table-component";
-import dados from "../../services/dados.json";
 import { confirmAlert } from "react-confirm-alert";
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import api from "../../services/api.js";
+import { useEffect, useState } from "react";
 
 function Negocio(){
+
+    const [etapas, setEtapas] = useState([]);
+    const [etapa, setEtapa] = useState("");
+    const [qtd_reg_pagina, setQtdRegPagina] = useState(10);
+    const [dados, setDados] = useState([]);
+    const [totalRegistros, setTotalRegistros] = useState(0);
 
     const columns = [        
         {
@@ -81,7 +88,15 @@ function Negocio(){
             buttons: [
                 {
                     label: 'Sim',
-                    onClick: () => alert('Excluir registo id: ' + id)
+                    onClick: () => {
+                        api.delete("/negocios/" + id)
+                        .then((resp) => {
+                            ListarNegocios(localStorage.getItem("id_usuario"), etapa, 1, qtd_reg_pagina);
+                        })
+                        .catch((err) => {
+                            alert("Erro ao excluir negócio");
+                        })
+                    }
                 },
                 {
                     label: 'Não',
@@ -93,7 +108,8 @@ function Negocio(){
 
     function Editar(id){
         const event = new CustomEvent("openSideBar", { detail: {
-            operacao: "edit"
+            operacao: "edit",
+            id_negocio: id
         }
         });
 
@@ -109,10 +125,69 @@ function Negocio(){
         window.dispatchEvent(event);
     };
 
+    function ComboEtapas(){
+        api.get("etapas")
+        .then((resp) => {
+            setEtapas(resp.data);
+        })
+        .catch((err) => {
+            setEtapas({
+                "valor_mes": 0,
+                "qtd_mes":0,
+                "valor_dia":0,
+                "qtd_dia":0
+            });
+            alert("Erro ao carregar indicadores");
+        })
+    }
+
+    function ListarNegocios(id_usuario, etapa, pagina, qtd_reg_pagina){
+
+        console.log({id_usuario, etapa, pagina, qtd_reg_pagina})
+        
+        api.get("/negocios", {params: {id_usuario, etapa, pagina, qtd_reg_pagina}})
+        .then((resp) => {
+            setTotalRegistros(resp.data.totalRegistros);
+            setDados(resp.data.dados);
+        })
+        .catch((err) => {
+            setTotalRegistros(0);
+            setDados([]);
+            alert("Erro ao carregar indicadores");
+        })
+    }
+
+    function ChangeEtapa(e){
+        setEtapa(e.target.value);
+
+        ListarNegocios(localStorage.getItem("id_usuario"), e.target.value, 1, qtd_reg_pagina);
+    }
+
+    function ChangePerRows(newQtd, page){
+        ListarNegocios(localStorage.getItem("id_usuario"), etapa, page, newQtd);
+        setQtdRegPagina(newQtd);
+    }
+
+    function ChangePage(page){
+        ListarNegocios(localStorage.getItem("id_usuario"), etapa, page, qtd_reg_pagina);
+    }
+
+    function RefreshDados(){
+        ListarNegocios(localStorage.getItem("id_usuario"), etapa, 1, qtd_reg_pagina);
+    }
+
+    useEffect(() => {
+        ComboEtapas();
+
+        ListarNegocios(localStorage.getItem("id_usuario"), etapa, 1, qtd_reg_pagina);
+    }, [])
+
+
+
     
     return<>
 
-        <NegocioCad />
+        <NegocioCad onClose={RefreshDados}/>
 
         <div className="container-fluid">
             <div className="row flex-nowrap">
@@ -131,10 +206,13 @@ function Negocio(){
                                 <h2>Negócios</h2>
 
                                 <div className="form-control ms-4">
-                                    <select name="etapa" id="etapa">
-                                        <option value="0">Etapa</option>
-                                        <option value="Prospecção">Prospecção</option>
-                                        <option value="Proposta">Proposta</option>
+                                    <select name="etapa" id="etapa" onChange={ChangeEtapa}>
+                                        <option value="">Todas as etapas</option>
+                                        {
+                                            etapas.map((item) => {
+                                                return <option key={item.etapa} value={item.etapa}>{item.etapa}</option>
+                                            })
+                                        }
                                     </select>
                                 </div>
                             </div>
@@ -146,7 +224,12 @@ function Negocio(){
                                    data={dados}
                                    pagination={true}
                                    paginationComponentOptions={paginationOptions}
-                                   noDataComponent={"Nenhum registro encontrado"}
+                                   noDataComponent={<p className="no-data-found">Nenhum registro encontrado</p>}
+
+                                   paginationServer={true}
+                                   paginationTotalRows={totalRegistros}
+                                   onChangeRowsPerPage={ChangePerRows}
+                                   onChangePage={ChangePage}
                         />
 
                     </div>

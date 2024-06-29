@@ -3,41 +3,45 @@ import Busca from "../../components/busca/busca.jsx";
 import Indicador from "../../components/indicador/indicador.jsx";
 import Grafico from "../../components/grafico/grafico.jsx";
 import { useEffect, useState } from "react";
+import api from "../../services/api.js";
 
 function Dashboard(){
 
-    // let dadosIndicadroes = {
-    //     valor_mes: 5000,
-    //     qtd_mes: 18,
-    //     valor_dia: 3200,
-    //     qtd_dia: 5,
-    // };
-
     const [dadosIndicadroes, setDadosIndicadores] = useState({
-        valor_mes: 5000,
-        qtd_mes: 18,
-        valor_dia: 3200,
-        qtd_dia: 5,
+        "valor_mes": 0,
+        "qtd_mes":0,
+        "valor_dia":0,
+        "qtd_dia":0
     });
-    const [dadosAnual, setDadosAnual] = useState([]);
+    const [dadosAnual, setDadosAnual] = useState([["Mês", "Valor"], [0, 0]]);
 
 
     function MontarGrafAnual(){
         // GET do server
-        setDadosAnual([
-            ["Mês", "valor"],
-            ["01", 1000],
-            ["02", 1170],    
-            ["03", 660],    
-            ["04", 1030],    
-            ["05", 1000],
-            ["06", 1170],    
-            ["07",1400],
-        ])
+        api.get("/dashboard/negocios")
+        .then((resp) => {
+            setDadosAnual(resp.data);
+        })
+        .catch((err) => {
+            setDadosAnual(["Mês", "Valor"], [0, 0]);
+            alert("Erro ao carregar gráfico");
+        })
     }
 
     function MontarIndicadores(){
-        
+        api.get("/dashboard/resumos?id_usuario=" + localStorage.getItem("id_usuario"))
+        .then((resp) => {
+            setDadosIndicadores(resp.data);
+        })
+        .catch((err) => {
+            setDadosIndicadores({
+                "valor_mes": 0,
+                "qtd_mes":0,
+                "valor_dia":0,
+                "qtd_dia":0
+            });
+            alert("Erro ao carregar indicadores");
+        })
     }
 
     function MontarDashboard(){
@@ -46,6 +50,7 @@ function Dashboard(){
     }
 
     useEffect(() => {
+        localStorage.setItem("id_usuario", 1);
         MontarDashboard();
     }, [])
 

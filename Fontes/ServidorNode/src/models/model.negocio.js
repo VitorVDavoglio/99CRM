@@ -34,16 +34,30 @@ function ListarPaginado(id_usuario, etapa, pagina, qtd_reg_pagina, callback){
 
     ssql += "order by id_negocio desc "
 
-    // Paginacao...
-    ssql += "limit ?, ? "
-    filtro.push(qtd_pular);
-    filtro.push(parseInt(qtd_reg_pagina))
     
     db.query(ssql, filtro, function(err, result){
         if (err){
             callback(err, []);
         } else {
-            callback(undefined, result);
+            
+            let json = {total_registro: result.length};
+
+            // Paginacao...
+            ssql += "limit ?, ? "
+            filtro.push(qtd_pular);
+            filtro.push(parseInt(qtd_reg_pagina));
+
+            db.query(ssql, filtro, function(err, result){
+                if(err){
+                    callback(err, []);
+                } else {
+
+                    json.dados = result;
+
+                    callback(undefined, json);
+                }
+            });
+
         }
     });
 }
